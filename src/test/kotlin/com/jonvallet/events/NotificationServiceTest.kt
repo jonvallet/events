@@ -7,11 +7,12 @@ import com.jonvallet.events.service.MailService
 import com.jonvallet.events.service.Notification
 import com.jonvallet.events.service.NotificationService
 import com.jonvallet.events.service.SlackService
+import com.nhaarman.mockitokotlin2.whenever
+import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
-import org.mockito.Mockito.`when`
 import org.mockito.Mockito.verify
 import org.mockito.junit.MockitoJUnitRunner
 
@@ -50,7 +51,8 @@ class NotificationServiceTest {
     fun sendNotificationToAdminShouldSendAnEmail() {
         val notification = Notification(user = "admin", message = "message", title = "Subject")
         val to = "admin@admin.com"
-        `when`(userRepository.findByUsername(notification.user)).thenReturn(User(userName = notification.user, email = to))
+        whenever(userRepository.findByUsername(notification.user))
+                .thenReturn(User(userName = notification.user, email = to))
 
         notificationService.sendNotification(notification)
 
@@ -58,13 +60,24 @@ class NotificationServiceTest {
     }
 
     @Test
-    fun sendNotificationWithSlackEnableShouldSendASlackMessage() {
+    fun sendNotificationWithUserWithSlackEnableShouldSendASlackMessage() {
         val notification = Notification(user = "user", message = "message")
-        `when`(userRepository.findByUsername(notification.user))
+        whenever(userRepository.findByUsername(notification.user))
                 .thenReturn(User(userName = notification.user, email = "user@admin.com", slackNotifications = true))
 
         notificationService.sendNotification(notification)
 
         verify(slackService).send(user = notification.user, message = notification.message)
+    }
+
+    @Test
+    fun sendNotificationShouldPublishMessagesToTheNotificationStream() {
+        val notification = Notification(user = "admin", message = "message")
+        var captureNotification: Notification? = null
+
+        notificationService.notificationsStream().subscribe { captureNotification = it }
+        notificationService.sendNotification(notification)
+
+        assertEquals(notification, captureNotification)
     }
 }
