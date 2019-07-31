@@ -7,6 +7,7 @@ import com.jonvallet.events.service.MailService
 import com.jonvallet.events.service.Notification
 import com.jonvallet.events.service.NotificationService
 import com.jonvallet.events.service.SlackService
+import com.jonvallet.events.subscribers.NotificationMailSubscriber
 import com.nhaarman.mockitokotlin2.whenever
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -33,9 +34,13 @@ class NotificationServiceTest {
     fun setUp() {
         notificationService = NotificationService(
                 notificationRepository = notificationRepository,
-                mailService = mailService,
                 userRepository = userRepository,
                 slackService = slackService)
+        NotificationMailSubscriber(
+                stream = notificationService.notificationsStream(),
+                mailService = mailService,
+                userRepository = userRepository
+        )
     }
 
     @Test
