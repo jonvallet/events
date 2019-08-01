@@ -88,4 +88,15 @@ class NotificationServiceTest {
 
         assertEquals(notification, captureNotification)
     }
+
+    @Test
+    fun soldTitleNotificationsSendsNotificationToRob() {
+        val user = "sajith";
+        whenever(userRepository.findByUsername(user))
+                .thenReturn(User(userName = user, email = "", slackNotifications = true))
+
+        notificationService.sendNotification(Notification(user = user, message = "I have sold one!", title = "Sold"))
+
+        verify(slackService).send(user = "rob@scibite.com", message = "sajith has sold!")
+    }
 }

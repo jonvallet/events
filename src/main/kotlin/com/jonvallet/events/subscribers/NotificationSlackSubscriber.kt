@@ -16,5 +16,12 @@ class NotificationSlackSubscriber(
                 .filter { pair -> pair.second!!.slackNotifications }
                 .map { pair -> slackService.send(pair.first.user, pair.first.message) }
                 .subscribe()
+
+        stream
+                .filter { it.title == "Sold" }
+                .map {
+                    slackService.send(user = "rob@scibite.com", message = "${it.user} has sold!")
+                }
+                .subscribe()
     }
 }
