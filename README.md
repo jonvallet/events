@@ -45,5 +45,5 @@ Now do the same for the code that deals with slack notifications
 There is a new requirement that we need to implement. Everytime a notification is pushed that has the title value of `Sold`,
 we want to send and email to rob@sciencefy.com with the good news.
 
-Start writing the unit test then make the it pass adding the new behaviour.
+Start writing the unit test then make the test pass adding the new behaviour.
 
